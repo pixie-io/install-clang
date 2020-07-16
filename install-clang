@@ -68,7 +68,7 @@ assertions=off             # If "on", enable LLVM assertions.
 parallelism=4              # The value X to pass to make -j X to build in parallel.
 buildtype=Release          # LLVM/clang build type.
 mode=install               # Install from scratch.
-targets=host               # LLVM_TARGETS_TO_BUILD ("all" builds them all).
+targets="BPF;X86;WebAssembly"          # LLVM_TARGETS_TO_BUILD ("all" builds them all).
 
 # Whether to build & link shared libraries. Default is static, except for macOS
 # where static fails.
@@ -173,7 +173,7 @@ fi
 
 if [ "${use_master}" != "1" ]; then
     # git version to checkout.
-    version=release/9.x
+    version=release/11.x
     cherrypick=""
 else
     # git version to checkout.
@@ -320,12 +320,12 @@ projects_stage2="clang;libcxx;compiler-rt;libcxxabi;libunwind"
 
 test ${perform_lldb_build} = 1 && projects_stage2="${projects_stage2};lldb"
 test ${perform_lld_build} = 1 && projects_stage2="${projects_stage2};lld"
-test ${perform_extra_build} = 1 && projects_stage2="${projects_stage2};clang-tools-extra"
+test ${perform_extra_build} = 1 && projects_stage2="${projects_stage2};clang-tools-extra;clangd"
 
-CMAKE_common="${CMAKE_common} -DBUILD_SHARED_LIBS=${build_shared_libs} -DLLVM_TARGETS_TO_BUILD=${targets}"
+CMAKE_common="${CMAKE_common} -DBUILD_SHARED_LIBS=${build_shared_libs} -DLLVM_TARGETS_TO_BUILD=${targets} -DLLVM_INCLUDE_TESTS=OFF -DCLANG_INCLUDE_TESTS=OFF -DLLVM_ENABLE_RTTI=ON"
 CMAKE_stage0="${CMAKE_common} ${CMAKE_stage0} -DLLVM_ENABLE_PROJECTS=${projects_stage0}"
 CMAKE_stage1="${CMAKE_common} ${CMAKE_stage1} -DLLVM_ENABLE_PROJECTS=${projects_stage1} -DLIBCXXABI_USE_LLVM_UNWINDER=YES -DLLVM_ENABLE_ASSERTIONS=${assertions}"
-CMAKE_stage2="${CMAKE_common} ${CMAKE_stage2} -DLLVM_ENABLE_PROJECTS=${projects_stage2} -DLIBCXXABI_USE_LLVM_UNWINDER=YES -DLLVM_ENABLE_ASSERTIONS=${assertions}"
+CMAKE_stage2="${CMAKE_common} ${CMAKE_stage2} -DLLVM_ENABLE_PROJECTS=${projects_stage2} -DLIBCXXABI_USE_LLVM_UNWINDER=YES -DLIBCLANG_BUILD_STATIC=ON"
 
 #### Configure the stages.
 
@@ -408,6 +408,8 @@ for stage in 0 1 2; do
         exit 1
     fi
 done
+
+cp "${src}/build-stage2/lib/libclang.a" "${prefix}/lib"
 
 if [ "${perform_cleanup}" == "1" ]; then
     echo Deleting $src ...
