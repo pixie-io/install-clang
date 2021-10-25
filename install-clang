@@ -68,7 +68,7 @@ assertions=off             # If "on", enable LLVM assertions.
 parallelism=4              # The value X to pass to make -j X to build in parallel.
 buildtype=Release          # LLVM/clang build type.
 mode=install               # Install from scratch.
-targets="BPF;X86;WebAssembly"          # LLVM_TARGETS_TO_BUILD ("all" builds them all).
+targets="BPF;X86;ARM;AArch64"          # LLVM_TARGETS_TO_BUILD ("all" builds them all).
 
 # Whether to build & link shared libraries. Default is static, except for macOS
 # where static fails.
