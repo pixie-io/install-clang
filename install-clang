@@ -173,7 +173,7 @@ fi
 
 if [ "${use_master}" != "1" ]; then
     # git version to checkout.
-    version=release/11.x
+    version=release/13.x
     cherrypick=""
 else
     # git version to checkout.
